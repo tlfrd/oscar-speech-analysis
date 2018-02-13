@@ -1,0 +1,22 @@
+{
+  "name": "oscar-speech-analysis",
+  "version": "1.0.0",
+  "description": "Scraper and analysis of Oscar acceptance speeches",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tlfrd/oscar-speech-analysis.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tlfrd/oscar-speech-analysis/issues"
+  },
+  "homepage": "https://github.com/tlfrd/oscar-speech-analysis#readme",
+  "dependencies": {
+    "puppeteer": "^1.0.0"
+  }
+}
