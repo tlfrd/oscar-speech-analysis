@@ -1,5 +1,8 @@
 const puppeteer = require('puppeteer');
 
+const oscarRange = [12, 89];
+const speechStart = 1;
+
 const url = 'http://aaspeechesdb.oscars.org/link/012-1/';
 
 async function main() {
@@ -10,9 +13,18 @@ async function main() {
 
   await page.goto(url);
 
-  await page.screenshot({path: 'example.png'});
+  const data = await page.evaluate(() => {
+    const ps = [...document.querySelectorAll('#main p')];
+    return ps.map(d => {
+      return d.innerText;
+    });
+  });
 
-  return false;
+  await browser.close();
+
+  return data;
 }
 
-main();
+main().then(data => {
+  console.log(data);
+})
