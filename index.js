@@ -4,7 +4,25 @@ const puppeteer = require('puppeteer');
 const oscarRange = [12, 89];
 const speechStart = 1;
 
-// const url = 'http://aaspeechesdb.oscars.org/link/012-1/';
+// WIP
+async function mainSearch() {
+  const browser = await puppeteer.launch({
+  	args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+  const page = await browser.newPage();
+
+  await page.goto('http://aaspeechesdb.oscars.org/');
+
+  await page.click('#QI0');
+  await page.keyboard.type('1939');
+  await page.click('#body_SearchButton');
+  await page.waitForSelector('#main div p a');
+  await page.click('#main div p a');
+
+  await page.screenshot({path: 'example.png'});
+
+  await browser.close();
+}
 
 async function main() {
   const browser = await puppeteer.launch({
@@ -58,6 +76,4 @@ async function main() {
   return oscarsData;
 }
 
-main().then(data => {
-  console.log(data);
-})
+mainSearch();
