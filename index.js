@@ -1,8 +1,9 @@
 const puppeteer = require('puppeteer');
 
-// const oscarRange = [12, 89];
 const oscarRange = [12, 89];
 const speechStart = 1;
+
+const oscarYearRange = [1939, 2017];
 
 // WIP
 async function mainSearch() {
@@ -13,15 +14,47 @@ async function mainSearch() {
 
   await page.goto('http://aaspeechesdb.oscars.org/');
 
-  await page.click('#QI0');
-  await page.keyboard.type('1939');
-  await page.click('#body_SearchButton');
-  await page.waitForSelector('#main div p a');
-  await page.click('#main div p a');
+  let totalLinks = 0;
+  let currentYear = oscarYearRange[0];
 
-  await page.screenshot({path: 'example.png'});
+  while (currentYear <= oscarYearRange[1]) {
+    await page.click('#QI0');
+
+    await backspace4Times(page);
+
+    await page.keyboard.type(currentYear.toString());
+    await page.click('#body_SearchButton');
+    const result = await page.waitForSelector('#main div p a', {timeout: 10000}).catch((err) => {
+      console.log(`No data for ${currentYear}`);
+      return 'N/A'
+    });
+
+    let data;
+    if (result !== 'N/A') {
+      data = await page.evaluate(() => {
+        const ps = [...document.querySelectorAll('#main div p')];
+        return ps.map(d => {
+          return d.innerText;
+        });
+      });
+      totalLinks += data.length;
+      console.log(currentYear, data.length);
+    }
+
+    currentYear += 1;
+    await page.goBack();
+  }
+
+  console.log(totalLinks);
 
   await browser.close();
+}
+
+async function backspace4Times(page) {
+  await page.keyboard.press('Backspace');
+  await page.keyboard.press('Backspace');
+  await page.keyboard.press('Backspace');
+  await page.keyboard.press('Backspace');
 }
 
 async function main() {
