@@ -15,11 +15,17 @@ const svg = d3.select('body')
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+const config = {
+  title: "I'd like to thank...",
+  subtitle: "Median occurrences per speech of 'thanks' or 'thank', by year",
+  source: 'Academy Awards Acceptance Speech Database'
+};
+
 d3.json(jsonUrl, (err, data) => {
-  drawGraph(data, 'totalCount', 'mean', []);
+  drawGraph(data, 'totalCount', 'mean', [], config);
 });
 
-function drawGraph(data, attr, avg, drawLines) {
+function drawGraph(data, attr, avg, drawLines, chartConfig) {
   const nested = d3.nest()
     .key(d => d.year)
     .entries(data);
@@ -36,14 +42,16 @@ function drawGraph(data, attr, avg, drawLines) {
     .range([0, width])
 
   const y = d3.scaleLinear()
-    .domain(d3.extent(nested, d => d[avg]))
+    .domain([0, d3.max(nested, d => d[avg])])
     .range([height, 0])
     .nice();
 
   const xAxis = d3.axisBottom(x)
     .tickFormat(d3.format('d'));
 
-  const yAxis = d3.axisLeft(y);
+  const yAxis = d3.axisRight(y)
+    .ticks(5)
+    .tickSize(-width);
 
   svg.append('g')
     .attr('class', 'x axis')
@@ -52,7 +60,10 @@ function drawGraph(data, attr, avg, drawLines) {
 
   svg.append('g')
     .attr('class', 'y axis')
-    .call(yAxis);
+    .attr('transform', `translate(${width},0)`)
+    .call(yAxis)
+    .selectAll('text')
+    .attr('x', 10)
 
   const line = d3.line()
     .x(d => x(d.key))
@@ -74,5 +85,20 @@ function drawGraph(data, attr, avg, drawLines) {
     .attr('class', 'lineChart')
     .datum(nested)
     .attr('d', line);
+
+  svg.append('text')
+    .attr('class', 'title')
+    .attr('y', -margin.top * 0.7)
+    .text(chartConfig.title);
+
+  svg.append('text')
+    .attr('class', 'subtitle')
+    .attr('y', -margin.top * 0.35)
+    .text(chartConfig.subtitle);
+
+  svg.append('text')
+    .attr('class', 'source')
+    .attr('y', height + margin.bottom * 0.7)
+    .text(`Source: ${chartConfig.source}`);
 
 }

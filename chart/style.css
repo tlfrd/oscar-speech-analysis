@@ -1,11 +1,46 @@
 text {
-  font-family: monospace;
+  font-family: sans-serif;
+}
+
+.y.axis .tick line {
+  opacity: 0.5;
+}
+
+.x.axis .tick text {
+  font-size: 14px;
+}
+
+.y.axis .tick text {
+  font-size: 14px;
+}
+
+.x.axis .domain {
+  display: none;
+}
+
+.y.axis .domain {
+  display: none;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 16px;
+}
+
+.source {
+  font-size: 12px;
 }
 
 .lineChart {
   fill: none;
-  stroke-width: 2px;
-  stroke: black;
+  stroke-width: 3px;
+  stroke: #0f5499;
+  stroke-linejoin: round;
+  stroke-linecap: round;
 }
 
 .yearLines {
