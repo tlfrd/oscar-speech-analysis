@@ -1,11 +1,73 @@
 const puppeteer = require('puppeteer');
+const { writeFileSync } = require('fs');
 
 const oscarRange = [12, 89];
 const speechStart = 1;
 
 const oscarYearRange = [1939, 2017];
 
-// WIP
+async function newSearch() {
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+  const page = await browser.newPage();
+
+  const url = 'http://aaspeechesdb.oscars.org/results.aspx?QF0=year+term&AC=QBE_QUERY&MR=0&QI0=';
+
+  let totalLinks = 0;
+  let currentYear = oscarYearRange[0];
+
+  const yearArray = [];
+  let totalCount = 0;
+
+  while (currentYear <= oscarYearRange[1]) {
+    await page.goto(`${url}${currentYear}`);
+
+    const data = await page.evaluate(() => {
+      const fs = [...document.querySelectorAll('#body_Results1 p font')];
+      return fs.map(d => d.innerText);
+    });
+
+    const paired = [];
+
+    while (data.length > 0) {
+      const key = data.shift();
+      const value = data.shift();
+      paired.push([key, value]);
+    }
+
+    const speeches = [];
+    let speechCount = 0;
+    while (paired.length > 0) {
+      const current = paired.shift();
+      if (current[0] === 'year term') {
+        speechCount += 1;
+      }
+      if (!speeches[speechCount - 1]) {
+        speeches[speechCount - 1] = {};
+      } else {
+        speeches[speechCount - 1][current[0]] = current[1];
+      }
+    }
+
+    totalCount += speeches.length;
+
+    yearArray.push({
+      year: currentYear,
+      speeches: speeches
+    })
+
+    currentYear += 1;
+  }
+
+  await browser.close();
+
+  writeFileSync(
+    'speeches.json',
+    JSON.stringify(yearArray)
+  );
+}
+
 async function mainSearch() {
   const browser = await puppeteer.launch({
   	args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -40,6 +102,7 @@ async function mainSearch() {
       totalLinks += data.length;
       console.log(currentYear, data.length);
     }
+
 
     currentYear += 1;
     await page.goBack();
@@ -109,4 +172,4 @@ async function main() {
   return oscarsData;
 }
 
-mainSearch();
+newSearch();
