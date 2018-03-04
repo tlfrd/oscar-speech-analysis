@@ -1,36 +1,59 @@
 const data = require('./data/cleanedSpeeches.json')
 const { writeFileSync } = require('fs');
 
-async function analyseSingleWord(word) {
-  const regex = new RegExp(`\\b${word}\\b`, 'gi');
-
+async function analyseWordList(words) {
   const totals = [];
 
-  data.forEach(year => {
-    const speechTotals = year.speeches.map(speechData => {
-      const match = speechData.speech.match(regex);
-      return match ? match.length : 0;
-    });
+  // For each year
+  data.forEach(y => {
+    // For each speech
+    const speechTotals = y.speeches.map(speechData => {
+      // For each word
+      const matches = words.map(word => {
+        // Find all occurrences of each word
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        const matched = speechData.speech.match(regex);
+        const matchedCount = matched ? matched.length : 0;
 
-    let count = 0;
-    speechTotals.forEach(t => {
-      if (t !== 0) {
-        count += 1;
+        return {
+          word: word,
+          count: matchedCount
+        }
+      });
+
+      let totalCount = 0;
+      matches.forEach(m => {
+        if (m.count !== 0) {
+          totalCount += m.count;
+        }
+      });
+
+      return {
+        totalCount: totalCount,
+        wordCounts: matches
       }
     });
 
-    const total = speechTotals.reduce((a, b) => a + b, 0);
+
+    // How many speeches include these words
+    let speechIncludesWords = 0;
+    let totalOccurencesInYear = 0;
+    speechTotals.forEach(t => {
+      if (t.totalCount !== 0) {
+        speechIncludesWords += 1;
+        totalOccurencesInYear += t.totalCount;
+      }
+    });
+
     totals.push({
-      year: year.year,
-      total: total,
-      count: count,
-      numOfspeechesInYear: speechTotals.length,
-      percentageOfSpeeches: count ? count / speechTotals.length * 100 : 0,
-      averagePerSpeech: speechTotals.length ? total / speechTotals.length: 0
+      year: y.year,
+      noOfSpeeches: speechTotals.length,
+      totalOccurences: totalOccurencesInYear,
+      noOfSpeechesIncludingWord: speechIncludesWords
     });
   });
 
   return totals;
 }
 
-analyseSingleWord('god').then(result => console.log(result))
+analyseWordList(['god']).then(result => console.log(result));
