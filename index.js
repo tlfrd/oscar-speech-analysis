@@ -50,6 +50,8 @@ async function newSearch() {
       }
     }
 
+    console.log(currentYear, speeches.length);
+
     totalCount += speeches.length;
 
     yearArray.push({
