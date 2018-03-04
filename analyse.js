@@ -1,7 +1,7 @@
 const data = require('./data/cleanedSpeeches.json')
 const { writeFileSync } = require('fs');
 
-async function analyseWordList(words) {
+async function analyseWordListForYears(words) {
   const totals = [];
 
   // For each year
@@ -31,7 +31,7 @@ async function analyseWordList(words) {
       return {
         totalCount: totalCount,
         wordCounts: matches
-      }
+      };
     });
 
 
@@ -56,4 +56,65 @@ async function analyseWordList(words) {
   return totals;
 }
 
-analyseWordList(['god']).then(result => console.log(result));
+async function analyseWordListForSpeeches(words) {
+  let speeches = [];
+  data.forEach(y => {
+    const speechesToAdd = y.speeches.map(s => {
+      return {
+        year: y.year,
+        speech: s.speech,
+        name: s.name,
+        film: s.film,
+        category: s.categoryIndex
+      };
+    });
+    speeches = speeches.concat(speechesToAdd);
+  });
+
+  const results = speeches.map(s => {
+    // Refactor this out
+    const matches = words.map(word => {
+      // Find all occurrences of each word
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      const matched = s.speech.match(regex);
+      const matchedCount = matched ? matched.length : 0;
+
+      return {
+        word: word,
+        count: matchedCount
+      }
+    });
+
+    let totalCount = 0;
+    matches.forEach(m => {
+      if (m.count !== 0) {
+        totalCount += m.count;
+      }
+    });
+
+    return {
+      year: s.year,
+      name: s.name,
+      film: s.film,
+      category: s.category,
+      totalCount: totalCount,
+      wordCounts: matches
+    };
+  });
+
+  return results;
+}
+
+analyseWordListForYears(['thank', 'thanks']).then(result => {
+  writeFileSync(
+    'results/allYears_thankThanks.json',
+    JSON.stringify(result)
+  );
+});
+
+analyseWordListForSpeeches(['thank', 'thanks']).then(result => {
+  writeFileSync(
+    'results/allSpeeches_thankThanks.json',
+    JSON.stringify(result)
+  );
+});
