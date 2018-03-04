@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/tlfrd/oscar-speech-analysis#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "fs": "0.0.1-security",
     "puppeteer": "^1.0.0"
   }

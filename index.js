@@ -65,7 +65,7 @@ async function newSearch() {
   await browser.close();
 
   writeFileSync(
-    'speeches.json',
+    'data/speeches.json',
     JSON.stringify(yearArray)
   );
 }
