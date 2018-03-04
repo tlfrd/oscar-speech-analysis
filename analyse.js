@@ -1,5 +1,6 @@
 const data = require('./data/cleanedSpeeches.json')
 const { writeFileSync } = require('fs');
+const natural = require('natural');
 
 async function analyseWordListForYears(words) {
   const totals = [];
@@ -105,6 +106,39 @@ async function analyseWordListForSpeeches(words) {
   return results;
 }
 
+async function getWordCount() {
+  const tokenizer = new natural.WordTokenizer();
+
+  let speeches = [];
+  data.forEach(y => {
+    const speechesToAdd = y.speeches.map(s => {
+      return {
+        year: y.year,
+        speech: s.speech,
+        name: s.name,
+        film: s.film,
+        category: s.categoryIndex
+      };
+    });
+    speeches = speeches.concat(speechesToAdd);
+  });
+
+  const results = speeches.map(s => {
+    const tokens = tokenizer.tokenize(s.speech);
+    return {
+      year: s.year,
+      name: s.name,
+      film: s.film,
+      category: s.category,
+      speechLength: tokens.length
+    };
+  });
+
+  return results;
+}
+
+ /* Example run
+
 analyseWordListForYears(['thank', 'thanks']).then(result => {
   writeFileSync(
     'results/allYears_thankThanks.json',
@@ -118,3 +152,12 @@ analyseWordListForSpeeches(['thank', 'thanks']).then(result => {
     JSON.stringify(result)
   );
 });
+
+getWordCount().then(result => {
+  writeFileSync(
+    'results/allSpeeches_wordCount.json',
+    JSON.stringify(result)
+  );
+});
+
+*/
