@@ -3,7 +3,7 @@ text {
 }
 
 .y.axis .tick line {
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
 .x.axis .tick text {

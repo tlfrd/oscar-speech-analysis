@@ -1,9 +1,10 @@
 const jsonUrl = '../results/allSpeeches_thankThanks.json';
+const jsonUrl2 = '../results/allSpeeches_wordCount.json';
 
 const initWidth = 800;
 const initHeight = 418;
 
-const margin = {top: 75, right: 75, bottom: 75, left: 75};
+const margin = {top: 75, right: 40, bottom: 75, left: 10};
 
 const width = initWidth - margin.left - margin.right;
 const height = initHeight - margin.top - margin.bottom;
@@ -17,12 +18,22 @@ const svg = d3.select('body')
 
 const config = {
   title: "I'd like to thank...",
-  subtitle: "Median occurrences per speech of 'thanks' or 'thank', by year",
+  subtitle: "Mean occurrences per speech of 'thanks' or 'thank', by year",
   source: 'Academy Awards Acceptance Speech Database'
 };
 
-d3.json(jsonUrl, (err, data) => {
-  drawGraph(data, 'totalCount', 'mean', [], config);
+const config2 = {
+  title: "Oscar speeches are getting longer",
+  subtitle: "Median word count of speeches, by year",
+  source: 'Academy Awards Acceptance Speech Database'
+};
+
+// d3.json(jsonUrl, (err, data) => {
+//   drawGraph(data, 'totalCount', 'mean', [], config);
+// });
+
+d3.json(jsonUrl2, (err, data) => {
+  drawGraph(data, 'speechLength', 'median', [], config2);
 });
 
 function drawGraph(data, attr, avg, drawLines, chartConfig) {
@@ -100,5 +111,10 @@ function drawGraph(data, attr, avg, drawLines, chartConfig) {
     .attr('class', 'source')
     .attr('y', height + margin.bottom * 0.7)
     .text(`Source: ${chartConfig.source}`);
+
+  svg.append('text')
+    .attr('class', 'source')
+    .attr('y', height + margin.bottom * 0.9)
+    .text('@caletilford');
 
 }
